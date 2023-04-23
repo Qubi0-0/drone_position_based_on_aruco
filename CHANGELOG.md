@@ -6,3 +6,4 @@ Poprawiłem samo oznaczanie markerów i przypisywanie im ID, jest też jakiś pr
 Ja bym teraz skupił się na samym znajdowaniu pozycji, jest taka funkcja jak solvePnP(), która w teorii powinna właśnie to robić.
 Sugerowałbym dopisanie jakiejś funkcji (np. get3dPoints()) do wyciągania macierzy X, Y, Z z tego pliku CSV dla konkretnego ID w pętli. Do macierzy kamery użyłem numpy, 
 te wartości wyciągane z CSV też byłoby fajnie jakby były ładowane do np.array (powinno to działać z opencv).
+https://www.pythonpool.com/opencv-solvepnp/ tu link jak to solvepnp działa.
