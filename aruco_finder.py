@@ -10,6 +10,7 @@ FOV = 92
 RADIAL_DIST = [0,0,0]
 TANG_DIST = [0,0]
 
+
 # idk if camera matrix is ok, it was created using https://learnopencv.com/camera-calibration-using-opencv/
 camera_matrix = np.array([(FOCAL_LENGTH[0], 0, PRINCIPAL_POINT[0]/2),
                           (0, FOCAL_LENGTH[1], PRINCIPAL_POINT[1]/2),
@@ -40,6 +41,7 @@ def get3dPoints(one_id):
     pass
 
 
+
 class ArucoFinder:
 
     def __init__(self):
@@ -49,12 +51,14 @@ class ArucoFinder:
         self.aruco_dict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_4X4_1000)
         self.aruco_params = cv.aruco.DetectorParameters()
         self.detector = cv.aruco.ArucoDetector(self.aruco_dict, self.aruco_params)
+        self.video_frame = cv.VideoCapture("video/vid.MP4")
+        self.total_frame_count= int(self.video_frame.get(cv.CAP_PROP_FRAME_COUNT))
 
-i = 0
+
 
 if __name__ == '__main__':
     finder = ArucoFinder()
-
+i = 0
 while True:
     
     if finder.video_frame.isOpened():
@@ -77,7 +81,7 @@ while True:
 
 
         cv.imshow('frame', frame)
-        i = i + 1
+        i += 1
 
     if cv.waitKey(25) & 0xFF == ord('q'):
         break
