@@ -3,6 +3,13 @@ import numpy as np
 import cv2 as cv
 import matplotlib
 
+# Camera Params
+FOCAL_LENGTH = [1920, 1920]
+PRINCIPAL_POINT = [1920, 1080]
+FOV = 92
+RADIAL_DIST = [0,0,0]
+TANG_DIST = [0,0]
+
 def getCorners(one_corner):
     one_corner = one_corner.reshape(4, 2)
     one_corner=one_corner.astype(int)
@@ -31,7 +38,7 @@ class ArucoFinder:
     def __init__(self):
         self.aruco_data = csv.reader(open('data/aruco_positions.csv'))
         self.video_frame = cv.VideoCapture("/home/dawid/Pobrane/GX010280.MP4")
-        self.totalframecount= int(self.video_frame.get(cv.CAP_PROP_FRAME_COUNT))
+        self.total_frame_count= int(self.video_frame.get(cv.CAP_PROP_FRAME_COUNT))
         self.aruco_dict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_4X4_1000)
         self.aruco_params = cv.aruco.DetectorParameters()
         self.detector = cv.aruco.ArucoDetector(self.aruco_dict, self.aruco_params)
@@ -46,7 +53,7 @@ while True:
     if finder.video_frame.isOpened():
         ret, frame = finder.video_frame.read()
 
-    if i == finder.totalframecount:
+    if i == finder.total_frame_count:
         print("Can't receive frame (stream end?). Exiting ...")
         break
 
