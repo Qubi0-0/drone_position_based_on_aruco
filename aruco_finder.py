@@ -10,6 +10,11 @@ FOV = 92
 RADIAL_DIST = [0,0,0]
 TANG_DIST = [0,0]
 
+# idk if camera matrix is ok, it was created using https://learnopencv.com/camera-calibration-using-opencv/
+camera_matrix = np.array([(FOCAL_LENGTH[0], 0, PRINCIPAL_POINT[0]/2),
+                          (0, FOCAL_LENGTH[1], PRINCIPAL_POINT[1]/2),
+                          (0, 0, 1)])
+
 def getCorners(one_corner):
     one_corner = one_corner.reshape(4, 2)
     one_corner=one_corner.astype(int)
@@ -31,6 +36,8 @@ def drawIds(frame, one_id, top_left, top_right, bottom_right, bottom_left):
         (0, 255, 0),
         2
     )
+def get3dPoints(one_id):
+    pass
 
 
 class ArucoFinder:
@@ -76,5 +83,5 @@ while True:
         break
 
 finder.video_frame.release()
-cv.destroyAllWindows()
+cv.destroyAllWindows()  
 
