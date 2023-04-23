@@ -51,10 +51,6 @@ class ArucoFinder:
         self.aruco_dict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_4X4_1000)
         self.aruco_params = cv.aruco.DetectorParameters()
         self.detector = cv.aruco.ArucoDetector(self.aruco_dict, self.aruco_params)
-        self.video_frame = cv.VideoCapture("video/vid.MP4")
-        self.total_frame_count= int(self.video_frame.get(cv.CAP_PROP_FRAME_COUNT))
-
-
 
 if __name__ == '__main__':
     finder = ArucoFinder()
