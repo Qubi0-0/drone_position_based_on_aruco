@@ -14,8 +14,8 @@ TANG_DIST = [0,0]
 
 
 # idk if camera matrix is ok, it was created using https://learnopencv.com/camera-calibration-using-opencv/
-camera_matrix = np.array([(FOCAL_LENGTH[0], 0, PRINCIPAL_POINT[0]/2),
-                          (0, FOCAL_LENGTH[1], PRINCIPAL_POINT[1]/2),
+camera_matrix = np.array([(FOCAL_LENGTH[0], 0, PRINCIPAL_POINT[0]),
+                          (0, FOCAL_LENGTH[1], PRINCIPAL_POINT[1]),
                           (0, 0, 1)])
 
 def plot_trajectory(trajectory):
@@ -99,10 +99,12 @@ while True:
                     points_2D.append((top_right)/1.0)
                     points_3D.append(get3DPoints(one_id, finder.aruco_data))
                     
-            if len(points_2D) >= 6 and len(points_3D) == len(points_2D):
+            if len(points_2D) >= 4 and len(points_3D) == len(points_2D):
                 _, rvec, tvec = cv.solvePnP(np.array(points_3D), np.array(points_2D), camera_matrix, None)
                 R, _ = cv.Rodrigues(rvec)
-                camera_pos = np.dot(np.array(-R), tvec)
+                camera_pos = np.dot(np.array([(1, 0, 0),
+                          (0, -1, 0),
+                          (0, 0, -1)]), np.dot(np.array(-R), tvec))
                 cam_positions.append(camera_pos)
 
         frame = cv.resize(frame,[640,480])
