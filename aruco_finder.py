@@ -93,58 +93,58 @@ class ArucoFinder:
 
 if __name__ == '__main__':
     finder = ArucoFinder()
-i = 0
-cam_positions = []
+    i = 0
+    cam_positions = []
 
-max_cam_distance = 800  # max camera distance between 2 consecutive positions
-last_cam_pos = None
+    max_cam_distance = 800  # max camera distance between 2 consecutive positions
+    last_cam_pos = None
 
-while True:
+    while True:
 
-    if finder.video_frame.isOpened():
-        ret, frame = finder.video_frame.read()
+        if finder.video_frame.isOpened():
+            ret, frame = finder.video_frame.read()
 
-    if i == finder.total_frame_count:
-        print("Can't receive frame (stream end?). Exiting ...")
-        break
+        if i == finder.total_frame_count:
+            print("Can't receive frame (stream end?). Exiting ...")
+            break
 
-    if frame is not None:
-        (corners, ids, rejected) = finder.detector.detectMarkers(frame)
-        if len(corners) > 0:
-            ids = ids.flatten()
-            points_2D = []
-            points_3D = []
-            for (one_corner, one_id) in zip(corners, ids):
-                if (one_id) in range(1, 83):
-                    (top_left, top_right, bottom_right, bottom_left) = getCorners(one_corner)
-                    drawLines(frame, top_left, top_right, bottom_right, bottom_left)
-                    drawIds(frame, one_id, top_left, top_right, bottom_right, bottom_left)
-                    points_2D.append((top_right) / 1.0)
-                    points_3D.append(get3DPoints(one_id, finder.aruco_data))
+        if frame is not None:
+            (corners, ids, rejected) = finder.detector.detectMarkers(frame)
+            if len(corners) > 0:
+                ids = ids.flatten()
+                points_2D = []
+                points_3D = []
+                for (one_corner, one_id) in zip(corners, ids):
+                    if (one_id) in range(1, 83):
+                        (top_left, top_right, bottom_right, bottom_left) = getCorners(one_corner)
+                        drawLines(frame, top_left, top_right, bottom_right, bottom_left)
+                        drawIds(frame, one_id, top_left, top_right, bottom_right, bottom_left)
+                        points_2D.append((top_right) / 1.0)
+                        points_3D.append(get3DPoints(one_id, finder.aruco_data))
 
-            if len(points_2D) >= 4 and len(points_3D) == len(points_2D):
-                _, rvec, tvec = cv.solvePnP(np.array(points_3D), np.array(points_2D), camera_matrix, None)
-                R, _ = cv.Rodrigues(rvec)
-                camera_pos = np.dot(np.array([(1, 0, 0),
-                                              (0, -1, 0),
-                                              (0, 0, -1)]), np.dot(np.array(-R), tvec))
+                if len(points_2D) >= 4 and len(points_3D) == len(points_2D):
+                    _, rvec, tvec = cv.solvePnP(np.array(points_3D), np.array(points_2D), camera_matrix, None)
+                    R, _ = cv.Rodrigues(rvec)
+                    camera_pos = np.dot(np.array([(1, 0, 0),
+                                                (0, -1, 0),
+                                                (0, 0, -1)]), np.dot(np.array(-R), tvec))
 
-                if last_cam_pos is not None:
-                    cam_distance = np.linalg.norm(camera_pos - last_cam_pos)
-                    if cam_distance < max_cam_distance:
+                    if last_cam_pos is not None:
+                        cam_distance = np.linalg.norm(camera_pos - last_cam_pos)
+                        if cam_distance < max_cam_distance:
+                            cam_positions.append(camera_pos)
+                            last_cam_pos = camera_pos
+                    else:
                         cam_positions.append(camera_pos)
                         last_cam_pos = camera_pos
-                else:
-                    cam_positions.append(camera_pos)
-                    last_cam_pos = camera_pos
 
-        frame = cv.resize(frame, [640, 480])
-        cv.imshow('frame', frame)
-        i += 1
+            frame = cv.resize(frame, [640, 480])
+            cv.imshow('frame', frame)
+            i += 1
 
-    if cv.waitKey(25) & 0xFF == ord('q'):
-        break
+        if cv.waitKey(25) & 0xFF == ord('q'):
+            break
 
-finder.video_frame.release()
-cv.destroyAllWindows()
-plot_trajectory(cam_positions,finder.hz25_camera_poses)
+    finder.video_frame.release()
+    cv.destroyAllWindows()
+    plot_trajectory(cam_positions,finder.hz25_camera_poses)
