@@ -60,22 +60,26 @@ def get3DPoints(one_id, aruco_data):
     y = aruco_data.loc[one_id]['Y']
     z = aruco_data.loc[one_id]['Z']
     return np.array([x, y, z])
-    
+
 class ArucoFinder:
 
     def __init__(self):
         self.aruco_data = pd.read_csv('data/aruco_positions.csv').set_index('Marker_ID')
         self.mocap_data = pd.read_csv('data/mocap_ref_data.csv')
+        self.mark3_data = self.mocap_data.iloc[:,8:11].values.tolist()
         self.video_frame = cv.VideoCapture("video/vid.MP4")
         self.total_frame_count= int(self.video_frame.get(cv.CAP_PROP_FRAME_COUNT))
         self.aruco_dict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_4X4_1000)
         self.aruco_params = cv.aruco.DetectorParameters()
         self.detector = cv.aruco.ArucoDetector(self.aruco_dict, self.aruco_params)
-        
-        self.camera_fixed_positions = []
 
-    def check_camera_pose(self):
-        pass
+
+
+    def correct_camera_pose(self,current_mark3_pose):   
+
+        corrected_pose = [current_mark3_pose[0]+2, current_mark3_pose[1]+5, current_mark3_pose[2]-25] 
+  
+        return corrected_pose
 
 
 if __name__ == '__main__':
@@ -117,7 +121,6 @@ if __name__ == '__main__':
 
             frame = cv.resize(frame,[640,480])
             cv.imshow('frame', frame)
-            print(finder.mocap_data)
             i += 1
 
         if cv.waitKey(25) & 0xFF == ord('q'):
