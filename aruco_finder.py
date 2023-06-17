@@ -17,20 +17,29 @@ camera_matrix = np.array([(FOCAL_LENGTH[0], 0, PRINCIPAL_POINT[0]),
                           (0, FOCAL_LENGTH[1], PRINCIPAL_POINT[1]),
                           (0, 0, 1)])
 
-
-def plot_trajectory(trajectory):
+def plot_trajectory(trajectory, actual_trajectory):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    xs = [pos[0] for pos in trajectory]
-    ys = [pos[1] for pos in trajectory]
-    zs = [pos[2] for pos in trajectory]
-    ax.scatter(xs, ys, zs)
+
+    # Trajectory
+    xs_traj = [pos[0] for pos in trajectory]
+    ys_traj = [pos[1] for pos in trajectory]
+    zs_traj = [pos[2] for pos in trajectory]
+    ax.scatter(xs_traj, ys_traj, zs_traj, label='Estimated Trajectory')
+
+    # Actual Trajectory
+    xs_actual = [pos[0] for pos in actual_trajectory]
+    ys_actual = [pos[1] for pos in actual_trajectory]
+    zs_actual = [pos[2] for pos in actual_trajectory]
+    ax.scatter(xs_actual, ys_actual, zs_actual, label='Actual Trajectory')
+
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
     ax.set_xlim([-5000, 5000])
     ax.set_ylim([-5000, 5000])
     ax.set_zlim([-3000, 3000])
+    ax.legend()
     plt.show()
 
 
@@ -70,11 +79,16 @@ class ArucoFinder:
 
     def __init__(self):
         self.aruco_data = pd.read_csv('data/aruco_positions.csv').set_index('Marker_ID')
+        self.mocap_data = pd.read_csv('data/mocap_ref_data.csv')
+        self.mark3_data = self.mocap_data.iloc[455:,8:11].values.tolist()
+        self.camera_poses = [[x + 2, y + 5, z - 25] for x, y, z in self.mark3_data]
         self.video_frame = cv.VideoCapture("video/vid.MP4")
         self.total_frame_count = int(self.video_frame.get(cv.CAP_PROP_FRAME_COUNT))
         self.aruco_dict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_4X4_1000)
         self.aruco_params = cv.aruco.DetectorParameters()
         self.detector = cv.aruco.ArucoDetector(self.aruco_dict, self.aruco_params)
+        self.hz25_camera_poses = self.camera_poses[::4]
+
 
 
 if __name__ == '__main__':
@@ -133,4 +147,4 @@ while True:
 
 finder.video_frame.release()
 cv.destroyAllWindows()
-plot_trajectory(cam_positions)
+plot_trajectory(cam_positions,finder.hz25_camera_poses)
