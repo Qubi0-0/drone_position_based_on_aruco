@@ -74,6 +74,10 @@ def get3DPoints(one_id, aruco_data):
     z = aruco_data.loc[one_id]['Z']
     return np.array([x, y, z])
 
+def calculateError(camera_pos, cam_pos_csv_arr):
+    cam_pos_csv_arr = [np.array(np.array([[cam_pos_csv_arr[0]], [cam_pos_csv_arr[1]], [cam_pos_csv_arr[2]]]))]
+    error = np.linalg.norm(camera_pos - cam_pos_csv_arr)
+    return error
 
 class ArucoFinder:
 
@@ -98,6 +102,9 @@ if __name__ == '__main__':
 
     max_cam_distance = 800  # max camera distance between 2 consecutive positions
     last_cam_pos = None
+
+    total_error = 0.0
+    error_count = 0
 
     while True:
 
@@ -134,9 +141,16 @@ if __name__ == '__main__':
                         if cam_distance < max_cam_distance:
                             cam_positions.append(camera_pos)
                             last_cam_pos = camera_pos
+                            error = calculateError(camera_pos, finder.hz25_camera_poses[i])
+                            total_error += error
+                            error_count += 1
+
                     else:
                         cam_positions.append(camera_pos)
                         last_cam_pos = camera_pos
+                        error = calculateError(camera_pos, finder.hz25_camera_poses[i])
+                        total_error += error
+                        error_count += 1
 
             frame = cv.resize(frame, [640, 480])
             cv.imshow('frame', frame)
@@ -148,3 +162,8 @@ if __name__ == '__main__':
     finder.video_frame.release()
     cv.destroyAllWindows()
     plot_trajectory(cam_positions,finder.hz25_camera_poses)
+
+    if error_count > 0:
+        average_error = total_error / error_count
+        print("Total Error: {:.2f}".format(total_error))
+        print("Average Error: {:.2f}".format(average_error))
