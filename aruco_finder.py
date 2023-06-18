@@ -74,6 +74,10 @@ def get3DPoints(one_id, aruco_data):
     z = aruco_data.loc[one_id]['Z']
     return np.array([x, y, z])
 
+def calculateError(camera_pos, cam_pos_csv_arr):
+    cam_pos_csv_arr = [np.array(np.array([[cam_pos_csv_arr[0]], [cam_pos_csv_arr[1]], [cam_pos_csv_arr[2]]]))]
+    error = np.linalg.norm(camera_pos - cam_pos_csv_arr)
+    return error
 
 class ArucoFinder:
 
@@ -137,14 +141,16 @@ if __name__ == '__main__':
                         if cam_distance < max_cam_distance:
                             cam_positions.append(camera_pos)
                             last_cam_pos = camera_pos
-
-                            error = np.linalg.norm(camera_pos - finder.hz25_camera_poses[i])
+                            error = calculateError(camera_pos, finder.hz25_camera_poses[i])
                             total_error += error
                             error_count += 1
 
                     else:
                         cam_positions.append(camera_pos)
                         last_cam_pos = camera_pos
+                        error = calculateError(camera_pos, finder.hz25_camera_poses[i])
+                        total_error += error
+                        error_count += 1
 
             frame = cv.resize(frame, [640, 480])
             cv.imshow('frame', frame)
