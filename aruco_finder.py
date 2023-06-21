@@ -1,9 +1,7 @@
 import pandas as pd
 import numpy as np
 import cv2 as cv
-import matplotlib
 import matplotlib.pyplot as plt
-from scipy.interpolate import interp1d
 
 # Camera Params
 FOCAL_LENGTH = [1920, 1920]
